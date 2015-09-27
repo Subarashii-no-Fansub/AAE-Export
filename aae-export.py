@@ -16,14 +16,14 @@ bl_info = {
     "name": "Export: Adobe After Effects 6.0 Keyframe Data",
     "description": "Export motion tracking markers to Adobe After Effects 6.0 compatible files",
     "author": "Martin Herkt",
-    "version": (0, 1, 2),
+    "version": (0, 1, 3),
     "blender": (2, 62, 0),
     "location": "File > Export > Adobe After Effects 6.0 Keyframe Data",
     "warning": "",
     "category": "Import-Export",
     }
 
-import bpy, mathutils, math, pyperclip
+import bpy, mathutils, math
 
 def write_files(prefix, context):
     scene = context.scene
@@ -155,7 +155,6 @@ def write_files(prefix, context):
                 trackno += 1
 
             clipno += 1
-    pyperclip.copy(clipboard)
     return {'FINISHED'}
 
 from bpy_extras.io_utils import ExportHelper
