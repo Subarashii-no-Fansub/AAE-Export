@@ -16,7 +16,7 @@ bl_info = {
     "name": "Export: Adobe After Effects 6.0 Keyframe Data",
     "description": "Export motion tracking markers to Adobe After Effects 6.0 compatible files",
     "author": "Martin Herkt",
-    "version": (0, 1, 0),
+    "version": (0, 1, 1),
     "blender": (2, 62, 0),
     "location": "File > Export > Adobe After Effects 6.0 Keyframe Data",
     "warning": "",
@@ -89,7 +89,7 @@ def write_files(prefix, context):
                         rotation -= startrot - 360
 
                     x = coords[0] * clip.size[0]
-                    y = coords[1] * clip.size[1]
+                    y = (1 - coords[1]) * clip.size[1]
 
                     data.append([marker.frame, x, y, zoom, rotation])
 
