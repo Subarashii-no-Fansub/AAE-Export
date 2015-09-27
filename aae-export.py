@@ -16,14 +16,14 @@ bl_info = {
     "name": "Export: Adobe After Effects 6.0 Keyframe Data",
     "description": "Export motion tracking markers to Adobe After Effects 6.0 compatible files",
     "author": "Martin Herkt",
-    "version": (0, 1, 1),
+    "version": (0, 1, 2),
     "blender": (2, 62, 0),
     "location": "File > Export > Adobe After Effects 6.0 Keyframe Data",
     "warning": "",
     "category": "Import-Export",
     }
 
-import bpy, mathutils, math
+import bpy, mathutils, math, pyperclip
 
 def write_files(prefix, context):
     scene = context.scene
@@ -39,18 +39,28 @@ def write_files(prefix, context):
 
                 frameno = clip.frame_start
                 startarea = None
+                startwidth = None
+                startheight = None
                 startrot = None
 
                 data = []
 
+                clipboard = ""
+				
                 f.write("Adobe After Effects 6.0 Keyframe Data\r\n\r\n")
+                clipboard += "Adobe After Effects 6.0 Keyframe Data\r\n\r\n"
                 f.write("\tUnits Per Second\t{0:.3f}\r\n".format(fps))
+                clipboard += "\tUnits Per Second\t{0:.3f}\r\n".format(fps)
                 f.write("\tSource Width\t{0}\r\n".format(clip.size[0]))
+                clipboard += "\tSource Width\t{0}\r\n".format(clip.size[0])
                 f.write("\tSource Height\t{0}\r\n".format(clip.size[1]))
+                clipboard += "\tSource Height\t{0}\r\n".format(clip.size[1])
                 f.write("\tSource Pixel Aspect Ratio\t1\r\n")
+                clipboard += "\tSource Pixel Aspect Ratio\t1\r\n"
                 f.write("\tComp Pixel Aspect Ratio\t1\r\n\r\n")
+                clipboard += "\tComp Pixel Aspect Ratio\t1\r\n\r\n"
 
-                while frameno < clip.frame_duration:
+                while frameno <= clip.frame_duration:
                     marker = track.markers.find_frame(frameno)
                     frameno += 1
 
@@ -61,6 +71,8 @@ def write_files(prefix, context):
                     corners = marker.pattern_corners
 
                     area = 0
+                    width = math.sqrt((corners[1][0] - corners[0][0]) * (corners[1][0] - corners[0][0]) + (corners[1][1] - corners[0][1]) * (corners[1][1] - corners[0][1]))
+                    height = math.sqrt((corners[3][0] - corners[0][0]) * (corners[3][0] - corners[0][0]) + (corners[3][1] - corners[0][1]) * (corners[3][1] - corners[0][1]))
                     for i in range(1,3):
                         x1 = corners[i][0] - corners[0][0]
                         y1 = corners[i][1] - corners[0][1]
@@ -72,8 +84,16 @@ def write_files(prefix, context):
 
                     if startarea == None:
                         startarea = area
+                        
+                    if startwidth == None:
+                        startwidth = width
+                    if startheight == None:
+                        startheight = height
 
-                    zoom = area / startarea * 100
+                    zoom = math.sqrt(area / startarea) * 100
+                    
+                    xscale = width / startwidth * 100
+                    yscale = height / startheight * 100
 
                     p1 = mathutils.Vector(corners[0])
                     p2 = mathutils.Vector(corners[1])
@@ -91,38 +111,51 @@ def write_files(prefix, context):
                     x = coords[0] * clip.size[0]
                     y = (1 - coords[1]) * clip.size[1]
 
-                    data.append([marker.frame, x, y, zoom, rotation])
+                    data.append([marker.frame, x, y, xscale, yscale, rotation])
 
                 posline = "\t{0}\t{1:.3f}\t{2:.3f}\t0"
-                scaleline = "\t{0}\t{1:.3f}\t{1:.3f}\t100"
+                scaleline = "\t{0}\t{1:.3f}\t{2:.3f}\t100"
                 rotline = "\t{0}\t{1:.3f}"
 
                 positions = "\r\n".join([posline.format(d[0], d[1], d[2]) for d in data]) + "\r\n\r\n"
-                scales = "\r\n".join([scaleline.format(d[0], d[3]) for d in data]) + "\r\n\r\n"
-                rotations = "\r\n".join([rotline.format(d[0], d[4]) for d in data]) + "\r\n\r\n"
+                scales = "\r\n".join([scaleline.format(d[0], d[3], d[4]) for d in data]) + "\r\n\r\n"
+                rotations = "\r\n".join([rotline.format(d[0], d[5]) for d in data]) + "\r\n\r\n"
 
                 f.write("Anchor Point\r\n")
+                clipboard += "Anchor Point\r\n"
                 f.write("\tFrame\tX pixels\tY pixels\tZ pixels\r\n")
+                clipboard += "\tFrame\tX pixels\tY pixels\tZ pixels\r\n"
                 f.write(positions)
+                clipboard += positions
 
                 f.write("Position\r\n")
+                clipboard += "Position\r\n"
                 f.write("\tFrame\tX pixels\tY pixels\tZ pixels\r\n")
+                clipboard += "\tFrame\tX pixels\tY pixels\tZ pixels\r\n"
                 f.write(positions)
+                clipboard += positions
 
                 f.write("Scale\r\n")
+                clipboard += "Scale\r\n"
                 f.write("\tFrame\tX percent\tY percent\tZ percent\r\n")
+                clipboard += "\tFrame\tX percent\tY percent\tZ percent\r\n"
                 f.write(scales)
+                clipboard += scales
 
                 f.write("Rotation\r\n")
+                clipboard += "Rotation\r\n"
                 f.write("\tFrame Degrees\r\n")
+                clipboard += "\tFrame Degrees\r\n"
                 f.write(rotations)
+                clipboard += rotations
 
                 f.write("End of Keyframe Data\r\n")
+                clipboard += "End of Keyframe Data\r\n"
 
                 trackno += 1
 
             clipno += 1
-
+    pyperclip.copy(clipboard)
     return {'FINISHED'}
 
 from bpy_extras.io_utils import ExportHelper
