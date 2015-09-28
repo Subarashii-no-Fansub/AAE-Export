@@ -44,21 +44,13 @@ def write_files(prefix, context):
                 startrot = None
 
                 data = []
-
-                clipboard = ""
 				
                 f.write("Adobe After Effects 6.0 Keyframe Data\r\n\r\n")
-                clipboard += "Adobe After Effects 6.0 Keyframe Data\r\n\r\n"
                 f.write("\tUnits Per Second\t{0:.3f}\r\n".format(fps))
-                clipboard += "\tUnits Per Second\t{0:.3f}\r\n".format(fps)
                 f.write("\tSource Width\t{0}\r\n".format(clip.size[0]))
-                clipboard += "\tSource Width\t{0}\r\n".format(clip.size[0])
                 f.write("\tSource Height\t{0}\r\n".format(clip.size[1]))
-                clipboard += "\tSource Height\t{0}\r\n".format(clip.size[1])
                 f.write("\tSource Pixel Aspect Ratio\t1\r\n")
-                clipboard += "\tSource Pixel Aspect Ratio\t1\r\n"
                 f.write("\tComp Pixel Aspect Ratio\t1\r\n\r\n")
-                clipboard += "\tComp Pixel Aspect Ratio\t1\r\n\r\n"
 
                 while frameno <= clip.frame_duration:
                     marker = track.markers.find_frame(frameno)
@@ -122,35 +114,22 @@ def write_files(prefix, context):
                 rotations = "\r\n".join([rotline.format(d[0], d[5]) for d in data]) + "\r\n\r\n"
 
                 f.write("Anchor Point\r\n")
-                clipboard += "Anchor Point\r\n"
                 f.write("\tFrame\tX pixels\tY pixels\tZ pixels\r\n")
-                clipboard += "\tFrame\tX pixels\tY pixels\tZ pixels\r\n"
                 f.write(positions)
-                clipboard += positions
 
                 f.write("Position\r\n")
-                clipboard += "Position\r\n"
                 f.write("\tFrame\tX pixels\tY pixels\tZ pixels\r\n")
-                clipboard += "\tFrame\tX pixels\tY pixels\tZ pixels\r\n"
                 f.write(positions)
-                clipboard += positions
 
                 f.write("Scale\r\n")
-                clipboard += "Scale\r\n"
                 f.write("\tFrame\tX percent\tY percent\tZ percent\r\n")
-                clipboard += "\tFrame\tX percent\tY percent\tZ percent\r\n"
                 f.write(scales)
-                clipboard += scales
 
                 f.write("Rotation\r\n")
-                clipboard += "Rotation\r\n"
                 f.write("\tFrame Degrees\r\n")
-                clipboard += "\tFrame Degrees\r\n"
                 f.write(rotations)
-                clipboard += rotations
 
                 f.write("End of Keyframe Data\r\n")
-                clipboard += "End of Keyframe Data\r\n"
 
                 trackno += 1
 
