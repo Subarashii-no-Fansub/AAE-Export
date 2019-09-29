@@ -16,8 +16,8 @@ bl_info = {
     "name": "Export: Adobe After Effects 6.0 Keyframe Data",
     "description": "Export motion tracking markers to Adobe After Effects 6.0 compatible files",
     "author": "Martin Herkt",
-    "version": (0, 1, 3),
-    "blender": (2, 62, 0),
+    "version": (0, 1, 4),
+    "blender": (2, 80, 0),
     "location": "File > Export > Adobe After Effects 6.0 Keyframe Data",
     "warning": "",
     "category": "Import-Export",
@@ -149,19 +149,25 @@ class ExportAFXKey(bpy.types.Operator, ExportHelper):
     def execute(self, context):
         return write_files(self.filepath, context)
 
+classes = (
+    ExportAFXKey,
+)
 
-def menu_func(self, context):
+def menu_func_export(self, context):
     self.layout.operator(ExportAFXKey.bl_idname, text="Adobe After Effects 6.0 Keyframe Data")
 
 
 def register():
-    bpy.utils.register_class(ExportAFXKey)
-    bpy.types.INFO_MT_file_export.append(menu_func)
-
+    from bpy.utils import register_class
+    for cls in classes:
+        register_class(cls)
+    bpy.types.TOPBAR_MT_file_export.append(menu_func_export)
 
 def unregister():
-    bpy.utils.unregister_class(ExportAFXKey)
-    bpy.types.INFO_MT_file_export.remove(menu_func)
+    from bpy.utils import unregister_class
+    for cls in reversed(classes):
+        unregister_class(cls)
+    bpy.types.TOPBAR_MT_file_exportremove(menu_func_export)
 
 if __name__ == "__main__":
     register()
